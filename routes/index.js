@@ -30,8 +30,7 @@ router.post('/signup', function(req, res, next){
             }
 
             return res.json(user);
-
-            return res.json({token: user.generateJWT()});
+            //return res.json({token: user.generateJWT()});
         });
     });
 });
@@ -49,7 +48,8 @@ router.post('/login', function(req, res, next){
         if (!user.validPassword(req.body.password)) {
             return res.json( { message: 'Incorrect password.' });
         }
-        return res.json({token: user.generateJWT()});
+        return res.json(user);
+        //return res.json({token: user.generateJWT()});
     });
 
 

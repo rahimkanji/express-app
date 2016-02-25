@@ -5,19 +5,24 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+// ============ require passport
+var passport = require('passport');
+
+
 //  =========== Adding mongoose support
 var dbConfig = require('./config/database'); 			// load the database config
 var mongoose = require('mongoose');
 mongoose.connect(dbConfig.url); 	                    // connect to mongoDB database
-//  ===========
 
 //  =========== Requiring models
 require('./models/user');
 require('./models/note');
-//  ===========
+//  =========== load passport.js configuration from config/passport.js
+require('./config/passport');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var notes = require('./routes/notes');
 
 var app = express();
 
@@ -35,6 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/notes', notes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

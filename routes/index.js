@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+//======== require passport
+var passport = require('passport');
+
 //======== require mongoose and model
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
@@ -29,8 +32,8 @@ router.post('/signup', function(req, res, next){
                 return next(err);
             }
 
-            return res.json(user);
-            //return res.json({token: user.generateJWT()});
+            //return res.json(user);
+            return res.json({token: user.generateJWT()});
         });
     });
 });
@@ -40,7 +43,7 @@ router.post('/login', function(req, res, next){
         return res.status(400).json({message: 'Please fill out all fields'});
     }
 
-    User.findOne({ email: req.body.email }, function (err, user) {
+    /*User.findOne({ email: req.body.email }, function (err, user) {
         if(err){ return next(err); }
         if (!user) {
             return res.json( { message: 'Email not found in our records.' });
@@ -48,18 +51,33 @@ router.post('/login', function(req, res, next){
         if (!user.validPassword(req.body.password)) {
             return res.json( { message: 'Incorrect password.' });
         }
-        return res.json(user);
-        //return res.json({token: user.generateJWT()});
-    });
+        //return res.json(user);
+        return res.json({token: user.generateJWT()});
+    });*/
+
+    req.body.username = req.body.email;         // this is required because of passport.js api requiring "username" in req params
+    passport.authenticate('local', function (err, user, info) {
+        if (err) {
+            return next(err);
+        }
+
+        if (user) {
+            return res.json({token: user.generateJWT()});
+        } else {
+            return res.status(401).json(info);
+        }
+    })(req, res, next);
 
 
 });
 
 router.get('/allUsers', function(req, res, next) {
-    User.find(function(err, users){
-        if(err){ return next(err); }
 
-        res.json(users);
+    User.find()
+        .populate('notes')
+        .exec(function(err, users){
+            if(err){ return next(err); }
+            res.json(users);
     });
 });
 
